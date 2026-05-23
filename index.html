@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Health Tracker">
+<meta name="theme-color" content="#0a0a0a">
+<title>Health Tracker</title>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="public/icons/icon.svg">
+<link rel="apple-touch-icon" href="public/icons/icon-192.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles/app.css">
+</head>
+<body>
+<div id="app">
+  <div id="pages">
+
+    <!-- ══════════ DASHBOARD ══════════ -->
+    <div class="page active" id="page-home">
+      <div class="page-scroll">
+        <div class="page-header">
+          <div class="page-title" id="home-greeting">Good morning</div>
+          <div class="page-subtitle" id="home-date"></div>
+        </div>
+
+        <!-- Today's workout -->
+        <div class="today-pill" id="today-workout-pill" onclick="goToWorkout()">
+          <div class="today-pill-dot"></div>
+          <div class="today-pill-text">
+            <div class="today-pill-title" id="today-workout-title">Upper A — Chest & Back</div>
+            <div class="today-pill-sub" id="today-workout-sub">7 exercises · Tap to start</div>
+          </div>
+          <svg class="today-pill-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </div>
+
+        <!-- Macro summary -->
+        <div class="card">
+          <div class="card-title">Today's Nutrition</div>
+          <div class="macro-row">
+            <div class="macro-pill">
+              <div class="val" id="dash-kcal" style="color:var(--accent)">0</div>
+              <div class="lbl">kcal</div>
+              <div class="macro-bar"><div class="macro-bar-fill" id="bar-kcal" style="width:0%;background:var(--accent)"></div></div>
+            </div>
+            <div class="macro-pill">
+              <div class="val" id="dash-prot" style="color:var(--blue)">0</div>
+              <div class="lbl">protein</div>
+              <div class="macro-bar"><div class="macro-bar-fill" id="bar-prot" style="width:0%;background:var(--blue)"></div></div>
+            </div>
+            <div class="macro-pill">
+              <div class="val" id="dash-carb" style="color:var(--orange)">0</div>
+              <div class="lbl">carbs</div>
+              <div class="macro-bar"><div class="macro-bar-fill" id="bar-carb" style="width:0%;background:var(--orange)"></div></div>
+            </div>
+            <div class="macro-pill">
+              <div class="val" id="dash-fat" style="color:var(--purple)">0</div>
+              <div class="lbl">fat</div>
+              <div class="macro-bar"><div class="macro-bar-fill" id="bar-fat" style="width:0%;background:var(--purple)"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Body weight</div>
+            <div><span class="stat-value" id="dash-weight">—</span><span class="stat-unit">kg</span></div>
+            <div class="stat-sub" id="dash-weight-delta">No entries yet</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Workouts this week</div>
+            <div><span class="stat-value" id="dash-workouts">0</span><span class="stat-unit" id="dash-weekly-goal-label">/4</span></div>
+            <div class="prog-bar"><div class="prog-bar-fill" id="bar-workouts" style="width:0%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Streak</div>
+            <div><span class="stat-value" id="dash-streak">0</span><span class="stat-unit">days</span></div>
+            <div class="stat-sub">Keep it up</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Recovery</div>
+            <div><span class="stat-value" id="dash-recovery" style="color:var(--accent)">—</span></div>
+            <div class="stat-sub" id="dash-recovery-sub">Not logged today</div>
+          </div>
+        </div>
+
+        <!-- Recent meals -->
+        <div class="section-header">
+          <span class="section-header-title">Recent Meals</span>
+          <span class="section-header-action" onclick="switchTab('nutrition')">See all</span>
+        </div>
+        <div class="card" id="recent-meals-list">
+          <div class="empty-state">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            <p>No meals logged today</p>
+          </div>
+        </div>
+
+        <div class="scroll-pad"></div>
+      </div>
+    </div>
+
+    <!-- ══════════ WORKOUT ══════════ -->
+    <div class="page" id="page-workout">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div class="page-title">Training</div>
+          <div class="page-subtitle">Your routines & log</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="openModal('modal-weekly-goal')">⚙︎ Goal</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-new-routine')">+ Routine</button>
+        </div>
+      </div>
+      <div class="page-scroll">
+        <div id="routines-list"></div>
+        <!-- Past Workout Log -->
+        <div class="section-header" style="margin-top:4px">
+          <span class="section-header-title">Workout History</span>
+          <span class="section-header-action" onclick="openModal('modal-log-past-workout')">+ Log past</span>
+        </div>
+        <div id="workout-history-list"></div>
+        <div class="scroll-pad"></div>
+      </div>
+    </div>
+
+    <!-- ══════════ ACTIVE WORKOUT ══════════ -->
+    <div class="page" id="page-active">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div class="page-title" id="active-routine-name">Upper A</div>
+          <div class="workout-timer" id="workout-timer">00:00</div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="finishWorkout()">Finish</button>
+      </div>
+      <div class="page-scroll">
+        <div id="active-exercises-list"></div>
+        <div style="padding:0 16px 12px;">
+          <button class="btn btn-ghost btn-full" onclick="openModal('modal-add-exercise')">+ Add Exercise</button>
+        </div>
+        <div class="scroll-pad"></div>
+      </div>
+    </div>
+
+    <!-- ══════════ NUTRITION ══════════ -->
+    <div class="page" id="page-nutrition">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div class="page-title">Nutrition</div>
+          <div class="page-subtitle" id="nut-date"></div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-meal')">+ Meal</button>
+      </div>
+      <div class="page-scroll">
+        <!-- Macro targets -->
+        <div class="card">
+          <div class="card-title">Daily Targets</div>
+          <div class="macro-row">
+            <div class="macro-pill">
+              <div class="val" id="nut-kcal" style="color:var(--accent)">0</div>
+              <div class="lbl">/ <span id="target-kcal">2800</span></div>
+              <div class="macro-bar"><div class="macro-bar-fill" id="nbar-kcal" style="width:0%;background:var(--accent)"></div></div>
+            </div>
+            <div class="macro-pill">
+              <div class="val" id="nut-prot" style="color:var(--blue)">0</div>
+              <div class="lbl">/ <span id="target-prot">175</span>g</div>
+              <div class="macro-bar"><div class="macro-bar-fill" id="nbar-prot" style="width:0%;background:var(--blue)"></div></div>
+            </div>
+            <div class="macro-pill">
+              <div class="val" id="nut-carb" style="color:var(--orange)">0</div>
+              <div class="lbl">/ <span id="target-carb">310</span>g</div>
+              <div class="macro-bar"><div class="macro-bar-fill" id="nbar-carb" style="width:0%;background:var(--orange)"></div></div>
+            </div>
+            <div class="macro-pill">
+              <div class="val" id="nut-fat" style="color:var(--purple)">0</div>
+              <div class="lbl">/ <span id="target-fat">80</span>g</div>
+              <div class="macro-bar"><div class="macro-bar-fill" id="nbar-fat" style="width:0%;background:var(--purple)"></div></div>
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:4px" onclick="openModal('modal-set-targets')">Edit targets</button>
+        </div>
+
+        <!-- Meal log -->
+        <div class="section-header">
+          <span class="section-header-title">Today's Log</span>
+        </div>
+        <div class="card" id="meals-list">
+          <div class="empty-state">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <p>No meals logged today</p>
+          </div>
+        </div>
+
+        <!-- Saved recipes -->
+        <div class="section-header">
+          <span class="section-header-title">Saved Recipes</span>
+          <span class="section-header-action" onclick="openModal('modal-new-recipe')">+ New</span>
+        </div>
+        <div id="recipes-list" style="padding:0 16px 12px;"></div>
+
+        <div class="scroll-pad"></div>
+      </div>
+    </div>
+
+    <!-- ══════════ PROGRESS ══════════ -->
+    <div class="page" id="page-progress">
+      <div class="page-header">
+        <div class="page-title">Progress</div>
+        <div class="page-subtitle">Track your body & lifts</div>
+      </div>
+      <div class="page-scroll">
+        <!-- Body weight -->
+        <div class="section-header">
+          <span class="section-header-title">Body Weight</span>
+          <span class="section-header-action" onclick="openModal('modal-log-weight')">+ Log</span>
+        </div>
+        <div class="card">
+          <div style="display:flex;gap:16px;align-items:flex-end;margin-bottom:12px">
+            <div>
+              <div style="font-size:11px;color:var(--text2)">Current</div>
+              <div style="font-size:28px;font-weight:600;font-family:'DM Mono',monospace" id="prog-weight">—</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text2)">7-day avg</div>
+              <div style="font-size:22px;font-weight:500;font-family:'DM Mono',monospace;color:var(--text2)" id="prog-avg">—</div>
+            </div>
+            <div style="margin-left:auto">
+              <div style="font-size:11px;color:var(--text2)">Change</div>
+              <div style="font-size:22px;font-weight:500;font-family:'DM Mono',monospace" id="prog-delta">—</div>
+            </div>
+          </div>
+          <canvas id="weight-chart" height="100"></canvas>
+        </div>
+
+        <!-- Measurements -->
+        <div class="section-header">
+          <span class="section-header-title">Measurements</span>
+          <span class="section-header-action" onclick="openModal('modal-log-measurement')">+ Log</span>
+        </div>
+        <div class="card" id="measurements-list">
+          <div class="empty-state">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <p>No measurements logged</p>
+          </div>
+        </div>
+
+        <!-- Exercise progress -->
+        <div class="section-header">
+          <span class="section-header-title">Exercise PRs</span>
+        </div>
+        <div class="card" id="pr-list">
+          <div class="empty-state">
+            <p>Complete workouts to see PRs</p>
+          </div>
+        </div>
+
+        <!-- Recovery log -->
+        <div class="section-header">
+          <span class="section-header-title">Recovery Log</span>
+          <span class="section-header-action" onclick="openModal('modal-log-recovery')">+ Today</span>
+        </div>
+        <div class="card" id="recovery-list">
+          <div class="empty-state">
+            <p>No recovery entries yet</p>
+          </div>
+        </div>
+
+        <div class="scroll-pad"></div>
+      </div>
+    </div>
+
+  </div><!-- /pages -->
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <button class="nav-btn active" onclick="switchTab('home')" id="nav-home">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline stroke-linecap="round" stroke-linejoin="round" points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('workout')" id="nav-workout">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15M4.5 12a1 1 0 010-2M4.5 12a1 1 0 000 2M19.5 12a1 1 0 010-2M19.5 12a1 1 0 000 2M7.5 8v8M16.5 8v8M7.5 9a.5.5 0 01.5-.5h8a.5.5 0 01.5.5v6a.5.5 0 01-.5.5H8a.5.5 0 01-.5-.5V9z"/></svg>
+      <span>Workout</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('nutrition')" id="nav-nutrition">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="9" stroke-linecap="round"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M3 12h18"/></svg>
+      <span>Nutrition</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('progress')" id="nav-progress">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+      <span>Progress</span>
+    </button>
+  </nav>
+</div><!-- /app -->
+
+<!-- ══════════ MODALS ══════════ -->
+
+<!-- Start Workout -->
+<div class="modal-overlay" id="modal-start-workout">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="start-workout-title">Start Workout</div>
+    <p style="color:var(--text2);font-size:14px;margin-bottom:16px" id="start-workout-desc"></p>
+    <div id="start-workout-exercises" style="margin-bottom:16px"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-start-workout')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="beginWorkout()">Begin <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Meal -->
+<div class="modal-overlay" id="modal-add-meal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Log Meal</div>
+    <div class="form-group">
+      <label class="form-label">Meal name</label>
+      <input type="text" id="meal-name" placeholder="e.g. Chicken & rice">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div>
+        <label class="form-label">Calories (kcal)</label>
+        <input type="number" id="meal-kcal" placeholder="500" min="0">
+      </div>
+      <div>
+        <label class="form-label">Protein (g)</label>
+        <input type="number" id="meal-prot" placeholder="40" min="0">
+      </div>
+      <div>
+        <label class="form-label">Carbs (g)</label>
+        <input type="number" id="meal-carb" placeholder="60" min="0">
+      </div>
+      <div>
+        <label class="form-label">Fat (g)</label>
+        <input type="number" id="meal-fat" placeholder="15" min="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Or use saved recipe</label>
+      <select id="meal-recipe-select" onchange="fillFromRecipe()">
+        <option value="">— Select recipe —</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-add-meal')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="logMeal()">Log Meal</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Recipe -->
+<div class="modal-overlay" id="modal-new-recipe">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">New Recipe</div>
+    <div class="form-group">
+      <label class="form-label">Recipe name</label>
+      <input type="text" id="recipe-name" placeholder="e.g. High-protein pasta">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div>
+        <label class="form-label">Calories</label>
+        <input type="number" id="recipe-kcal" placeholder="0" min="0">
+      </div>
+      <div>
+        <label class="form-label">Protein (g)</label>
+        <input type="number" id="recipe-prot" placeholder="0" min="0">
+      </div>
+      <div>
+        <label class="form-label">Carbs (g)</label>
+        <input type="number" id="recipe-carb" placeholder="0" min="0">
+      </div>
+      <div>
+        <label class="form-label">Fat (g)</label>
+        <input type="number" id="recipe-fat" placeholder="0" min="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <textarea id="recipe-notes" placeholder="Ingredients, prep notes…"></textarea>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-new-recipe')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveRecipe()">Save Recipe</button>
+    </div>
+  </div>
+</div>
+
+<!-- Log Weight -->
+<div class="modal-overlay" id="modal-log-weight">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Log Body Weight</div>
+    <div class="form-group">
+      <label class="form-label">Weight (kg)</label>
+      <input type="number" id="weight-val" placeholder="75.5" step="0.1" min="30" max="300">
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-log-weight')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="logWeight()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Log Measurement -->
+<div class="modal-overlay" id="modal-log-measurement">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Body Measurements</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div>
+        <label class="form-label">Chest (cm)</label>
+        <input type="number" id="m-chest" placeholder="0" min="0">
+      </div>
+      <div>
+        <label class="form-label">Waist (cm)</label>
+        <input type="number" id="m-waist" placeholder="0" min="0">
+      </div>
+      <div>
+        <label class="form-label">Hips (cm)</label>
+        <input type="number" id="m-hips" placeholder="0" min="0">
+      </div>
+      <div>
+        <label class="form-label">Bicep (cm)</label>
+        <input type="number" id="m-bicep" placeholder="0" min="0">
+      </div>
+      <div>
+        <label class="form-label">Thigh (cm)</label>
+        <input type="number" id="m-thigh" placeholder="0" min="0">
+      </div>
+      <div>
+        <label class="form-label">Calf (cm)</label>
+        <input type="number" id="m-calf" placeholder="0" min="0">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-log-measurement')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="logMeasurement()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Log Recovery -->
+<div class="modal-overlay" id="modal-log-recovery">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Recovery Check-in</div>
+    <div class="form-group">
+      <label class="form-label">Sleep quality</label>
+      <div class="recovery-grid" id="recovery-sleep">
+        <div class="recovery-tile" onclick="selectRecovery('sleep','Poor')" data-val="Poor">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <span>Poor</span>
+        </div>
+        <div class="recovery-tile" onclick="selectRecovery('sleep','Fair')" data-val="Fair">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <span>Fair</span>
+        </div>
+        <div class="recovery-tile" onclick="selectRecovery('sleep','Good')" data-val="Good">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <span>Good</span>
+        </div>
+        <div class="recovery-tile" onclick="selectRecovery('sleep','Great')" data-val="Great">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <span>Great</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:16px">
+      <label class="form-label">Energy level</label>
+      <div class="recovery-grid" id="recovery-energy">
+        <div class="recovery-tile" onclick="selectRecovery('energy','Drained')" data-val="Drained"><span>😴 Drained</span></div>
+        <div class="recovery-tile" onclick="selectRecovery('energy','Low')" data-val="Low"><span>😑 Low</span></div>
+        <div class="recovery-tile" onclick="selectRecovery('energy','Good')" data-val="Good"><span>😊 Good</span></div>
+        <div class="recovery-tile" onclick="selectRecovery('energy','High')" data-val="High"><span>⚡ High</span></div>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:16px">
+      <label class="form-label">Muscle soreness</label>
+      <div class="recovery-grid" id="recovery-soreness">
+        <div class="recovery-tile" onclick="selectRecovery('soreness','Severe')" data-val="Severe"><span>🔴 Severe</span></div>
+        <div class="recovery-tile" onclick="selectRecovery('soreness','Moderate')" data-val="Moderate"><span>🟠 Moderate</span></div>
+        <div class="recovery-tile" onclick="selectRecovery('soreness','Mild')" data-val="Mild"><span>🟡 Mild</span></div>
+        <div class="recovery-tile" onclick="selectRecovery('soreness','None')" data-val="None"><span>🟢 None</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-log-recovery')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveRecovery()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Routine -->
+<div class="modal-overlay" id="modal-new-routine">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">New Routine</div>
+    <div class="form-group">
+      <label class="form-label">Routine name</label>
+      <input type="text" id="new-routine-name" placeholder="e.g. Push Day">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <select id="new-routine-type">
+        <option>Upper</option><option>Lower</option><option>Push</option>
+        <option>Pull</option><option>Legs</option><option>Full Body</option><option>Other</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-new-routine')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="createRoutine()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Exercise to active workout -->
+<div class="modal-overlay" id="modal-add-exercise">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Exercise</div>
+    <div class="search-wrap" style="padding:0 0 12px">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="left:12px"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="exercise-search" placeholder="Search exercises…" oninput="filterExercises()" style="padding-left:38px">
+    </div>
+    <div id="exercise-search-list" style="max-height:300px;overflow-y:auto"></div>
+    <div style="margin-top:12px">
+      <button class="btn btn-ghost btn-full btn-sm" onclick="openModal('modal-custom-exercise')">+ Create custom exercise</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom exercise -->
+<div class="modal-overlay" id="modal-custom-exercise">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Custom Exercise</div>
+    <div class="form-group">
+      <label class="form-label">Exercise name</label>
+      <input type="text" id="custom-ex-name" placeholder="e.g. Incline Cable Fly">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Muscle group</label>
+      <select id="custom-ex-muscle">
+        <option>Chest</option><option>Back</option><option>Shoulders</option>
+        <option>Biceps</option><option>Triceps</option><option>Quads</option>
+        <option>Hamstrings</option><option>Glutes</option><option>Calves</option>
+        <option>Core</option><option>Full Body</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-custom-exercise')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="addCustomExercise()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Weekly Goal -->
+<div class="modal-overlay" id="modal-weekly-goal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Weekly workout goal</div>
+    <div class="form-group">
+      <label class="form-label">Target sessions per week</label>
+      <select id="weekly-goal-select">
+        <option value="2">2 days</option>
+        <option value="3">3 days</option>
+        <option value="4" selected>4 days</option>
+        <option value="5">5 days</option>
+        <option value="6">6 days</option>
+        <option value="7">7 days</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-weekly-goal')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveWeeklyGoal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Finish Workout — HR & Calories -->
+<div class="modal-overlay" id="modal-finish-workout">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Finish workout</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Optional: add heart rate & calorie data from your watch or device.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div>
+        <label class="form-label">Avg HR (bpm)</label>
+        <input type="number" id="finish-avg-hr" placeholder="145" min="40" max="220">
+      </div>
+      <div>
+        <label class="form-label">Max HR (bpm)</label>
+        <input type="number" id="finish-max-hr" placeholder="178" min="40" max="220">
+      </div>
+      <div style="grid-column:1/-1">
+        <label class="form-label">Calories burned (kcal)</label>
+        <input type="number" id="finish-calories" placeholder="420" min="0">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="confirmFinishWorkout(false)">Skip</button>
+      <button class="btn btn-primary" style="flex:2" onclick="confirmFinishWorkout(true)">Save & finish</button>
+    </div>
+  </div>
+</div>
+
+<!-- Log Past Workout -->
+<div class="modal-overlay" id="modal-log-past-workout">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Log past workout</div>
+    <div class="form-group">
+      <label class="form-label">Routine</label>
+      <select id="past-routine-select">
+        <option value="">— Select routine —</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date</label>
+      <input type="date" id="past-workout-date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Duration (minutes)</label>
+      <input type="number" id="past-duration" placeholder="60" min="1">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div>
+        <label class="form-label">Avg HR (bpm)</label>
+        <input type="number" id="past-avg-hr" placeholder="145" min="40" max="220">
+      </div>
+      <div>
+        <label class="form-label">Max HR (bpm)</label>
+        <input type="number" id="past-max-hr" placeholder="178" min="40" max="220">
+      </div>
+      <div style="grid-column:1/-1">
+        <label class="form-label">Calories burned (kcal)</label>
+        <input type="number" id="past-calories" placeholder="420" min="0">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-log-past-workout')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="savePastWorkout()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Workout Detail -->
+<div class="modal-overlay" id="modal-workout-detail">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="workout-detail-content"></div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn btn-danger" style="flex:1" onclick="deleteWorkoutLog()">Delete</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-workout-detail')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Routine Confirm -->
+<div class="modal-overlay" id="modal-delete-routine">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Delete routine?</div>
+    <p style="color:var(--text2);font-size:14px;margin-bottom:20px">
+      "<span id="delete-routine-name"></span>" will be permanently removed. This cannot be undone.
+    </p>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-delete-routine')">Cancel</button>
+      <button class="btn btn-danger" style="flex:1" onclick="confirmDeleteRoutine()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Routine -->
+<div class="modal-overlay" id="modal-edit-routine">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Edit routine</div>
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input type="text" id="edit-routine-name" placeholder="e.g. Upper A">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div>
+        <label class="form-label">Type</label>
+        <select id="edit-routine-type">
+          <option>Upper</option><option>Lower</option><option>Push</option>
+          <option>Pull</option><option>Legs</option><option>Full Body</option><option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Scheduled day</label>
+        <select id="edit-routine-day">
+          <option value="">— None —</option>
+          <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+          <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+        </select>
+      </div>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">Exercises</div>
+    <div id="edit-exercises-list" style="max-height:340px;overflow-y:auto;margin-bottom:10px"></div>
+    <button class="btn btn-ghost btn-full btn-sm" style="margin-bottom:14px" onclick="addExerciseFromEdit()">+ Add exercise</button>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-edit-routine')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveEditRoutine()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Set Targets -->
+<div class="modal-overlay" id="modal-set-targets">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Daily Macro Targets</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div><label class="form-label">Calories</label><input type="number" id="t-kcal" placeholder="2800" min="0"></div>
+      <div><label class="form-label">Protein (g)</label><input type="number" id="t-prot" placeholder="175" min="0"></div>
+      <div><label class="form-label">Carbs (g)</label><input type="number" id="t-carb" placeholder="310" min="0"></div>
+      <div><label class="form-label">Fat (g)</label><input type="number" id="t-fat" placeholder="80" min="0"></div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('modal-set-targets')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveTargets()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

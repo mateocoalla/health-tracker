@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0a0a0a"/>
+  <!-- barbell -->
+  <g stroke="#c8f55a" stroke-width="22" stroke-linecap="round" fill="none">
+    <!-- bar -->
+    <line x1="120" y1="256" x2="392" y2="256"/>
+    <!-- inner collars -->
+    <line x1="160" y1="200" x2="160" y2="312"/>
+    <line x1="352" y1="200" x2="352" y2="312"/>
+    <!-- outer plates -->
+    <line x1="120" y1="172" x2="120" y2="340"/>
+    <line x1="392" y1="172" x2="392" y2="340"/>
+  </g>
+</svg>
